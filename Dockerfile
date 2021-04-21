@@ -24,6 +24,8 @@ RUN go mod init fabianlee.org/docker-golang-hello-world-web \
 # generate small final image for end users
 #
 #FROM alpine:3.13.5
+# could have used either alpine or busybox
+# busybox-glibc (versus musl) would have better compatability with Debian, but that is not an issue here
 FROM busybox:1.32.1-glibc
 
 # copy golang binary into container
