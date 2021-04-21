@@ -19,34 +19,34 @@ docker-build:
 
 ## cleans docker image
 clean:
-	$(DOCKERCMD)image rm $(OPV) | true
+	$(DOCKERCMD) image rm $(OPV) | true
 
 ## runs container in foreground, testing a couple of override values
 docker-test-fg:
-	$(DOCKERCMD)run -it -p $(WEBPORT) -e APP_CONTEXT=/hello/ -e MY_NODE_NAME=node1 --rm $(OPV)
+	$(DOCKERCMD) run -it -p $(WEBPORT) -e APP_CONTEXT=/hello/ -e MY_NODE_NAME=node1 --rm $(OPV)
 
 ## runs container in foreground, override entrypoint to use use shell
 docker-test-cli:
-	$(DOCKERCMD)run -it --rm --entrypoint "/bin/sh" $(OPV)
+	$(DOCKERCMD) run -it --rm --entrypoint "/bin/sh" $(OPV)
 
 ## run container in background
 docker-run-bg:
-	$(DOCKERCMD)run -d -p $(WEBPORT) --rm --name $(PROJECT) $(OPV)
+	$(DOCKERCMD) run -d -p $(WEBPORT) --rm --name $(PROJECT) $(OPV)
 
 ## get into console of container running in background
 docker-cli-bg:
-	$(DOCKERCMD)exec -it $(PROJECT) /bin/sh
+	$(DOCKERCMD) exec -it $(PROJECT) /bin/sh
 
 ## tails $(DOCKERCMD)logs
 docker-logs:
-	$(DOCKERCMD)logs -f $(PROJECT)
+	$(DOCKERCMD) logs -f $(PROJECT)
 
 ## stops container running in background
 docker-stop:
-	$(DOCKERCMD)stop $(PROJECT)
+	$(DOCKERCMD) stop $(PROJECT)
 
 
 ## pushes to $(DOCKERCMD)hub
 docker-push:
-	$(DOCKERCMD)push $(OPV)
+	$(DOCKERCMD) push $(OPV)
 
