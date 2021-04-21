@@ -7,10 +7,10 @@ Golang http web server running by default on port 8080 that is intended for test
 * APP_CONTEXT - base context path of app, defaults to '/'
 
 # Environment variables populated from Downward API
-MY_NODE_NAME - name of k8s node
-MY_POD_NAME - name of k8s pod
-MY_POD_IP - k8s pod IP
-MY_POD_SERVICE_ACCOUNT - service account of k8s pod
+* MY_NODE_NAME - name of k8s node
+* MY_POD_NAME - name of k8s pod
+* MY_POD_IP - k8s pod IP
+* MY_POD_SERVICE_ACCOUNT - service account of k8s pod
 
 # Prerequisites
 * make utility (sudo apt-get install make)
