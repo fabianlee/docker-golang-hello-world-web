@@ -1,6 +1,8 @@
 # Summary
 Golang http web server running by default on port 8080 that is intended for testing
 
+Image is based on busybox:1.32.1-glibc, is about ~11Mb because it takes advantage of multi-stage building
+
 # Environment variables
 
 * PORT - listen port, defaults to 8080
