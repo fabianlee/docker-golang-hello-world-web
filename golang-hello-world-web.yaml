@@ -1,34 +1,10 @@
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: golang-hello-world-web-service
-  #namespace: default
-  labels:
-    app: golang-hello-world-web
-spec:
-  ports:
-  # port=available to other containers
-  - port: 8080
-    name: http
-    # targetPort=exposed from inside container
-    targetPort: 8080
-    protocol: TCP
-  selector:
-    app: golang-hello-world-web
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: golang-hello-world-web
   # allow for override: kubectl -n <ns> apply ...
   #namespace: default
-  labels:
-    app: golang-hello-world-web
-    foo: bar
-  annotations:
-    author: fabian lee
-    blog: https://fabianlee.org
 spec:
   selector:
     matchLabels:
@@ -37,11 +13,16 @@ spec:
   replicas: 1
   template:
     metadata:
+
       labels:
         app: golang-hello-world-web
-      # skip any istio sidecar auto-injection
+        foo: bar
+
       annotations:
         sidecar.istio.io/inject: "false"
+        author: fabian lee
+        blog: https://fabianlee.org
+
     spec:
 
       # scaled up deployment will go to different nodes
@@ -58,24 +39,32 @@ spec:
 
       volumes:
         - name: podinfo
+          # these are *only* available through env vars, and not volume mount
+          # status.podIP, spec.serviceAccountName, spec.nodeName, status.hostIP
           downwardAPI:
             items:
-              # pulling pod fields
+              # pulling pod fields, fieldRef
+              - path: "name"
+                fieldRef:
+                  fieldPath: metadata.name
+              - path: "namespace"
+                fieldRef:
+                  fieldPath: metadata.namespace
               - path: "labels"
                 fieldRef:
                   fieldPath: metadata.labels
               - path: "annotations"
                 fieldRef:
                   fieldPath: metadata.annotations
-              # pulling container fields
+              # pulling container fields, resourceFieldRef
               - path: "mem_limit"
                 resourceFieldRef:
-                  containerName: client-container
+                  containerName: golang-hello-world-web
                   resource: limits.memory
                   divisor: 1Mi
               - path: "mem_request"
                 resourceFieldRef:
-                  containerName: client-container
+                  containerName: golang-hello-world-web
                   resource: requests.memory
                   divisor: 1Mi
 
@@ -92,24 +81,10 @@ spec:
             memory: "8Mi"
             cpu: "50m"
 
-        # file based injection of Downward API
-        args:
-        - while true; do
-            if [[ -e /etc/podinfo/labels ]]; then
-              echo -en '\n\n'; cat /etc/podinfo/labels; fi;
-            if [[ -e /etc/podinfo/annotations ]]; then
-              echo -en '\n\n'; cat /etc/podinfo/annotations; fi;
-            if [[ -e /etc/podinfo/mem_limit ]]; then
-              echo -en '\n'; cat /etc/podinfo/mem_limit; fi;
-            if [[ -e /etc/podinfo/mem_request ]]; then
-              echo -en '\n'; cat /etc/podinfo/mem_request; fi;
-            sleep 5;
-          done;
-
         # mount for Downward files
         volumeMounts:
           - name: podinfo
-            mount: /etc/podinfo
+            mountPath: /etc/podinfo
 
         env:
 
@@ -121,11 +96,7 @@ spec:
           value: "8080"
 
         # Downward API support - inserts these into container as env variables
-        # pulling pod fields
-        - name: MY_NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
+        # pulling pod fields, fieldRef
         - name: MY_POD_NAME
           valueFrom:
             fieldRef:
@@ -142,23 +113,33 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.serviceAccountName
-        - name: MY_POD_LABELS
+        - name: MY_NODE_NAME
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels
-        - name: MY_POD_LABELS
+              fieldPath: spec.nodeName
+
+        # can only pull single keys out of annotations and labels
+        # use volume mount if you want all
+        - name: MY_POD_LABEL_APP
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels
-        # pulling container fields
-        - path: "mem_limit"
+              fieldPath: metadata.labels['app']
+        - name: MY_POD_ANNOTATION_AUTHOR
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['author']
+
+        # pulling container fields, resourceFieldRef
+        - name: "mem_limit"
+          valueFrom:
             resourceFieldRef:
-              containerName: client-container
+              containerName: golang-hello-world-web
               resource: limits.memory
               divisor: 1Mi
-          - path: "mem_request"
+        - name: "mem_request"
+          valueFrom:
             resourceFieldRef:
-              containerName: client-container
+              containerName: golang-hello-world-web
               resource: requests.memory
               divisor: 1Mi
 
@@ -177,3 +158,21 @@ spec:
           periodSeconds: 3
 
       restartPolicy: Always
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: golang-hello-world-web-service
+#  #namespace: default
+#  labels:
+#    app: golang-hello-world-web
+#spec:
+#  ports:
+#  # port=available to other containers
+#  - port: 8080
+#    name: http
+#    # targetPort=exposed from inside container
+#    targetPort: 8080
+#    protocol: TCP
+#  selector:
+#    app: golang-hello-world-web
