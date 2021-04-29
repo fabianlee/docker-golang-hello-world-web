@@ -16,6 +16,8 @@ import (
     "net/http"
     "os"
     "sync"
+    "io/ioutil"
+    "path"
 )
 
 // built into binary using ldflags
@@ -76,8 +78,19 @@ func handleApp(w http.ResponseWriter, r *http.Request) {
 
     // env vars that are populated from kubernetes/docker environment
     for _,keyName := range k8s_downward_env_list {
-      fmt.Fprintf(w, "%s = %s\n", keyName, getenv(keyName,"empty") )
+      fmt.Fprintf(w, "ENV %s = %s\n", keyName, getenv(keyName,"empty") )
     }
+
+    files, err := ioutil.ReadDir("/etc/podinfo/")
+    if err != nil {
+      for _, file := range files {
+        data, _ := ioutil.ReadFile(file.Name())
+        fmt.Fprintf(w,"FILE %s = %s\n",path.Base(file.Name()),data)
+      }
+    }else {
+      fmt.Fprintf(w,"Did not find any files in /etc/podinfo/")
+    }
+    
 
     incrementCounter()
 }
