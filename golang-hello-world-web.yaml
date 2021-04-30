@@ -88,10 +88,15 @@ spec:
 
         env:
 
-        # default variables available to be overridden
+        # 404 if request not to this context
         - name: APP_CONTEXT
-          # if set to /test/' would only deliver from that path
-          value: "/myhello/"
+          value: "/golang-hello/"
+
+        # default message
+        - name: MESSAGE_TO
+          value: "World"
+
+        # listening port
         - name: PORT
           value: "8080"
 
@@ -130,13 +135,13 @@ spec:
               fieldPath: metadata.annotations['author']
 
         # pulling container fields, resourceFieldRef
-        - name: "mem_limit"
+        - name: MY_POD_MEM_LIMIT_MB
           valueFrom:
             resourceFieldRef:
               containerName: golang-hello-world-web
               resource: limits.memory
               divisor: 1Mi
-        - name: "mem_request"
+        - name: MY_POD_MEM_REQUEST_MB
           valueFrom:
             resourceFieldRef:
               containerName: golang-hello-world-web
@@ -158,21 +163,21 @@ spec:
           periodSeconds: 3
 
       restartPolicy: Always
-#---
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: golang-hello-world-web-service
-#  #namespace: default
-#  labels:
-#    app: golang-hello-world-web
-#spec:
-#  ports:
-#  # port=available to other containers
-#  - port: 8080
-#    name: http
-#    # targetPort=exposed from inside container
-#    targetPort: 8080
-#    protocol: TCP
-#  selector:
-#    app: golang-hello-world-web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: golang-hello-world-web-service
+  #namespace: default
+  labels:
+    app: golang-hello-world-web
+spec:
+  ports:
+  # port=available to other containers
+  - port: 8080
+    name: http
+    # targetPort=exposed from inside container
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: golang-hello-world-web

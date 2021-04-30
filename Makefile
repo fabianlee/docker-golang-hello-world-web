@@ -23,7 +23,7 @@ clean:
 
 ## runs container in foreground, testing a couple of override values
 docker-test-fg:
-	$(DOCKERCMD) run -it -p $(WEBPORT) -e APP_CONTEXT=/hello/ -e MY_NODE_NAME=node1 --rm $(OPV)
+	$(DOCKERCMD) run -it -p $(WEBPORT) -e APP_CONTEXT=/golang-hello/ -e MY_NODE_NAME=node1 --rm $(OPV)
 
 ## runs container in foreground, override entrypoint to use use shell
 docker-test-cli:
@@ -49,4 +49,11 @@ docker-stop:
 ## pushes to $(DOCKERCMD)hub
 docker-push:
 	$(DOCKERCMD) push $(OPV)
+
+## pushes to kubernetes cluster
+k8s-apply:
+	sed -e 's/1.0.0/$(VERSION)/' golang-hello-world-web.yaml | kubectl apply -f -
+
+k8s-delete:
+	kubectl delete -f golang-hello-world-web.yaml
 

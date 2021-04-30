@@ -18,6 +18,7 @@ import (
     "sync"
     "io/ioutil"
     "path"
+    "path/filepath"
 )
 
 // built into binary using ldflags
@@ -25,7 +26,11 @@ var Version string
 var BuildTime string
 
 // env keys set by k8s
-var k8s_downward_env_list []string = []string{"MY_NODE_NAME","MY_POD_NAME","MY_POD_IP","MY_POD_SERVICE_ACCOUNT"}
+var k8s_downward_env_list []string = []string { 
+  "MY_NODE_NAME","MY_POD_NAME","MY_POD_IP","MY_POD_SERVICE_ACCOUNT",
+  "MY_POD_LABEL_APP","MY_POD_ANNOTATION_AUTHOR","MY_POD_MEM_LIMIT_MB",
+  "MY_POD_MEM_REQUEST_MB",
+} 
 
 // request count for this container
 var counter int
@@ -36,9 +41,53 @@ func incrementCounter() {
     mutex.Unlock()
 }
 
+func FilePathWalkDir(root string) ([]string, error) {
+ var files []string
+ err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+  if !info.IsDir() {
+   files = append(files, path)
+  }
+  return nil
+ })
+ return files, err
+}
+
 
 func StartWebServer() {
     log.Printf("build version/time: %s/%s", Version, BuildTime)
+
+    log.Printf("About to read from /etc/podinfo/")
+    files, err := ioutil.ReadDir("/etc/podinfo/")
+    
+    if err != nil {
+      for _, file := range files {
+        log.Printf("Going to read file %s",file.Name())
+        data, ferr := ioutil.ReadFile(file.Name())
+        if ferr != nil {
+          log.Printf("FILE %s = %s\n",path.Base(file.Name()),data)
+        } else {
+          log.Printf("%s",ferr)
+        }
+      }
+    }else {
+      log.Printf("problem with ReadDir %s",err)
+    }
+
+    myfiles, err := FilePathWalkDir("/etc/podinfo/")
+    if err != nil {
+      for _, file := range myfiles {
+        log.Printf("walked FILE %s",file)
+      }
+    }else {
+      log.Printf("problem with FilePathWalkDir %s",err)
+    }
+
+    mydata, myerr := ioutil.ReadFile("/etc/podinfo/name")
+    if myerr != nil {
+      log.Printf("OK read /etc/podinfo/name %s",mydata)
+    }else {
+      log.Printf("problem reading /etc/podinfo/name %s",myerr)
+    }
 
     // mux router to handle regex
     http.HandleFunc("/healthz", handleHealth)
@@ -54,6 +103,7 @@ func StartWebServer() {
     if err := http.ListenAndServe(":"+port, nil); err != nil {
         panic(err)
     }
+
 }
 
 func handleHealth(w http.ResponseWriter, r *http.Request) {
@@ -84,13 +134,17 @@ func handleApp(w http.ResponseWriter, r *http.Request) {
     files, err := ioutil.ReadDir("/etc/podinfo/")
     if err != nil {
       for _, file := range files {
-        data, _ := ioutil.ReadFile(file.Name())
-        fmt.Fprintf(w,"FILE %s = %s\n",path.Base(file.Name()),data)
+        log.Printf("Going to read file %s",file.Name())
+        data, ferr := ioutil.ReadFile(file.Name())
+        if ferr != nil {
+          fmt.Fprintf(w,"FILE %s = %s\n",path.Base(file.Name()),data)
+        } else {
+          log.Fatal(err)
+        }
       }
     }else {
       fmt.Fprintf(w,"Did not find any files in /etc/podinfo/")
     }
-    
 
     incrementCounter()
 }
