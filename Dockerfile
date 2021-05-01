@@ -7,11 +7,11 @@ ADD src/*.go /build/
 WORKDIR /build
 
 # accept override of value from --build-args
-ARG MY_VERSION 0.1.1
+ARG MY_VERSION=0.1.1
 ENV MY_VERSION=$MY_VERSION
 
 # accept override of value from --build-args
-ARG MY_BUILDTIME now
+ARG MY_BUILDTIME=now
 ENV MY_BUILDTIME=$MY_BUILDTIME
 
 # create module, fetch dependencies, then build
