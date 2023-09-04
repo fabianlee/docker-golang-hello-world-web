@@ -1,7 +1,10 @@
-# Summary
-Golang http web server running by default on port 8080 that is intended for testing
+# GoLang HTTP web server
 
-Image is based on busybox:1.32.1-glibc, is about ~11Mb because it takes advantage of multi-stage building
+Golang http web server running by default on port 8080 that is intended for testing.
+
+Kubernetes compatible health check available at "/healthz".
+
+Final image is based on busybox:1.32.1-glibc totaling ~11Mb because it takes advantage of multi-stage building.
 
 # Pulling image from GitHub Container Registry
 
