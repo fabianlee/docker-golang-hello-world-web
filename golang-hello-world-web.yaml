@@ -20,22 +20,9 @@ spec:
 
     spec:
 
-      # scaled up deployment will go to different nodes
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - golang-hello-world-web
-            topologyKey: "kubernetes.io/hostname"
-
-
       containers:
       - name: golang-hello-world-web
-        image: fabianlee/docker-golang-hello-world-web:1.0.0
+        image: ghcr.io/fabianlee/docker-golang-hello-world-web:latest
 
         # resource limits
         resources:
