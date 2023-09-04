@@ -6,6 +6,8 @@ Kubernetes compatible health check available at "/healthz".
 
 Final image is based on busybox:1.32.1-glibc totaling ~11Mb because it takes advantage of multi-stage building.
 
+I have this same project, but enhanced with Prometheus metrics at [docker-prom-golang-hello-world-web](https://github.com/fabianlee/docker-prom-golang-hello-world-web).
+
 # Pulling image from GitHub Container Registry
 
 ```
