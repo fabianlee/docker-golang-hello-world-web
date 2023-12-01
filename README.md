@@ -39,7 +39,7 @@ docker pull ghcr.io/fabianlee/docker-golang-hello-world-web:latest
 
 ```
 newtag=v1.0.1
-git commit -a -m "changes for new tag $newtag" && git push
+git commit -a -m "changes for new tag $newtag" && git push -o ci.skip
 git tag $newtag && git push origin $newtag
 ```
 
@@ -48,6 +48,6 @@ git tag $newtag && git push origin $newtag
 ```
 # delete local tag, then remote
 todel=v1.0.1
-git tag -d $todel && git push origin :refs/tags/$todel
+git tag -d $todel && git push -d origin $todel
 ```
 
