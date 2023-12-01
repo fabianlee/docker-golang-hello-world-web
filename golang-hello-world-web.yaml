@@ -35,15 +35,15 @@ spec:
 
         env:
 
-        # 404 if request not to this context
+        # override web context, 404 if request not to this context
         - name: APP_CONTEXT
           value: "/golang-hello/"
 
-        # default message
-        - name: MESSAGE_TO
-          value: "World"
+        # override default message
+        - name: GREETING
+          value: "Universe"
 
-        # listening port
+        # override listening port
         - name: PORT
           value: "8080"
 
