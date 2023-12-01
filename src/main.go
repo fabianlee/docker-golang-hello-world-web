@@ -43,7 +43,7 @@ func StartWebServer() {
     http.HandleFunc(appContext, handleApp)
 
     // ability to change greeting using environment variable
-    messageTo := getenv("GREETING","World")
+    messageTo = getenv("GREETING","World")
 
     port := getenv("PORT","8080")
     log.Printf("Starting web server on port %s", port)
