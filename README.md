@@ -16,6 +16,7 @@ docker pull ghcr.io/fabianlee/docker-golang-hello-world-web:latest
 
 # Environment variables available to image
 
+* GREETING - message displayed, defaults to "World"
 * PORT - listen port, defaults to 8080
 * APP_CONTEXT - base context path of app, defaults to '/'
 
